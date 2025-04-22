@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 360px;
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .chat-header {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .bot-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: #4fc3f7;
+            border-radius: 50%;
+            margin-right: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .robot-face {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85%;
+            height: 50%;
+        }
+
+        .robot-eye {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #fff;
+            border-radius: 50%;
+            top: 12px;
+        }
+
+        .eye-left {
+            left: 10px;
+        }
+
+        .eye-right {
+            right: 10px;
+        }
+
+        .robot-mouth {
+            position: absolute;
+            width: 20px;
+            height: 6px;
+            background-color: #fff;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 3px;
+        }
+
+        .bot-info {
+            flex: 1;
+        }
+
+        .bot-name {
+            font-weight: bold;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .bot-status {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .dropdown-btn {
+            color: #999;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .chat-box {
+            flex: 1;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+            height: 350px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            margin: 8px 0;
+            line-height: 1.4;
+        }
+
+        .bot {
+            background-color: #5b68fb;
+            color: white;
+            align-self: flex-start;
+            text-align: left;
+            margin-right: auto;
+            white-space: pre-line;
+        }
+
+        .user {
+            background-color: #f0f0f0;
+            color: #333;
+            align-self: flex-end;
+            text-align: right;
+            margin-left: auto;
+        }
+
+        .default-questions {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding: 0 16px;
+        }
+
+        .default-questions p {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .default-questions button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 8px;
+            background-color: #e8f1fd;
+            color: #5b68fb;
+            border: 1px solid #d0e1f9;
+            border-radius: 12px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .default-questions button:hover {
+            background-color: #d0e1f9;
+        }
+
+        .feedback-container {
+            background-color: #e8f1fd;
+            padding: 8px 12px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 8px;
+            width: 80%;
+        }
+
+        .feedback-text {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .feedback-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .feedback-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .input-container {
+            padding: 12px 16px;
+            border-top: 1px solid #f0f0f0;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 18px;
+            border: 1px solid #e0e0e0;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .send-btn {
+            width: 36px;
+            height: 36px;
+            background-color: #5b68fb;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="bot-avatar">
+                <div class="robot-face">
+                    <div class="robot-eye eye-left"></div>
+                    <div class="robot-eye eye-right"></div>
+                    <div class="robot-mouth"></div>
+                </div>
+            </div>
+            <div class="bot-info">
+                <div class="bot-name">Chat bot</div>
+                <div class="bot-status">I'm your online assistant.</div>
+            </div>
+            <button class="dropdown-btn">&#x25BC;</button>
+        </div>
+
+        <div class="default-questions">
+            <p>💡 Try asking (you can edit before sending):</p>
+            <button onclick="fillInput('Give me a study schedule for Math. Exam is on 30th April.')">📅 Create study
+                schedule</button>
+        </div>
+
+        <div id="chat-box" class="chat-box">
+            <!-- Messages will appear here -->
+        </div>
+
+        <div class="input-container">
+            <input type="text" id="user-input" class="message-input" placeholder="Ask anything...">
+            <button onclick="sendMessage()" class="send-btn">▶</button>
+        </div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+
+        // Function to clean up the message text
+        function cleanMessageText(text) {
+            // Remove markdown headers (#) and bullet points (*) and formatting
+            let cleaned = text.replace(/#{1,6}\s+/g, ''); // Remove headers
+            cleaned = cleaned.replace(/\*\s+/g, ''); // Remove bullet points
+            cleaned = cleaned.replace(/\*\*(.*?)\*\*/g, '$1'); // Remove bold formatting
+            cleaned = cleaned.replace(/\*(.*?)\*/g, '$1'); // Remove italic formatting
+
+            // Remove phrases like "the page says" or similar placeholders
+            cleaned = cleaned.replace(/the page says[:\s]*/gi, '');
+            cleaned = cleaned.replace(/page says[:\s]*/gi, '');
+            cleaned = cleaned.replace(/according to the page[:\s]*/gi, '');
+
+            return cleaned.trim();
+        }
+
+        // Function to add message to chat
+        function addMessage(text, sender) {
+            let displayText = text;
+
+            // Only clean bot messages, leave user messages as is
+            if (sender === 'bot') {
+                displayText = cleanMessageText(text);
+            }
+
+            const messageEl = document.createElement('div');
+            messageEl.className = `message ${sender}`;
+            messageEl.innerText = displayText;
+            chatBox.appendChild(messageEl);
+
+            // Add feedback options for bot messages
+            if (sender === 'bot') {
+                const feedbackEl = document.createElement('div');
+                feedbackEl.className = 'feedback-container';
+                feedbackEl.innerHTML = `
+                    <span class="feedback-text">Did you like the answer?</span>
+                    <div class="feedback-buttons">
+                        <button class="feedback-btn" onclick="provideFeedback(true)">👍</button>
+                        <button class="feedback-btn" onclick="provideFeedback(false)">👎</button>
+                    </div>
+                `;
+                chatBox.appendChild(feedbackEl);
+            }
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Function to send message
+        async function sendMessage() {
+            const question = userInput.value.trim();
+            if (!question) return;
+
+            addMessage(question, 'user');
+            userInput.value = '';
+
+            // Show typing indicator
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'message bot';
+            typingIndicator.innerText = 'Typing...';
+            typingIndicator.id = 'typing-indicator';
+            chatBox.appendChild(typingIndicator);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await fetch('http://localhost:3000/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ question }),
+                });
+
+                // Remove typing indicator
+                const indicator = document.getElementById('typing-indicator');
+                if (indicator) {
+                    chatBox.removeChild(indicator);
+                }
+
+                const data = await response.json();
+                addMessage(data.reply, 'bot');
+            } catch (error) {
+                // Remove typing indicator
+                const indicator = document.getElementById('typing-indicator');
+                if (indicator) {
+                    chatBox.removeChild(indicator);
+                }
+
+                addMessage('❌ Failed to fetch reply. Please check server.', 'bot');
+                console.error(error);
+            }
+        }
+
+        // Function to pre-fill input box when user clicks a default question
+        function fillInput(text) {
+            userInput.value = text;
+            userInput.focus(); // Auto-focus the input box for editing
+        }
+
+        // Function to handle feedback
+        function provideFeedback(isPositive) {
+            const feedbackMessage = isPositive ?
+                "Thank you for your positive feedback!" :
+                "Thank you for your feedback. We'll work to improve our responses.";
+
+            alert(feedbackMessage);
+
+            // You could also send this feedback to your server
+            // fetch('http://localhost:3000/feedback', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify({ isPositive }),
+            // });
+        }
+
+        // Add event listener for enter key
+        userInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Send welcome message when page loads
+        window.addEventListener('load', function () {
+            setTimeout(() => {
+                addMessage("Hi there! I'm your chatbot assistant. How can I help you today?", 'bot');
+            }, 500);
+        });
+    </script>
+</body>
+
+</html>
